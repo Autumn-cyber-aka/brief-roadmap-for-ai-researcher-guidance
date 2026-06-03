@@ -1,4 +1,49 @@
 <script setup>
+import { nextTick } from "vue";
+
+const scrollTo = async (href) => {
+  if (!href.startsWith("#")) return;
+
+  const targetId = href.slice(1);
+  history.pushState(null, "", href);
+  await nextTick();
+
+  if (targetId === "top") {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    return;
+  }
+
+  document.getElementById(targetId)?.scrollIntoView({ behavior: "smooth", block: "start" });
+};
+
+const sidebarSections = [
+  {
+    title: "路线总览",
+    links: [
+      { label: "开始阅读", href: "#top" },
+      { label: "如何使用", href: "#how-to-use" },
+    ],
+  },
+  {
+    title: "课程目录",
+    links: [
+      { label: "基础能力", href: "#foundations" },
+      { label: "AI 核心", href: "#core" },
+      { label: "研究方向", href: "#specializations" },
+      { label: "学习原则", href: "#principles" },
+    ],
+  },
+];
+
+const pageToc = [
+  { label: "路线目标", href: "#top" },
+  { label: "如何使用", href: "#how-to-use" },
+  { label: "基础能力", href: "#foundations" },
+  { label: "AI 核心", href: "#core" },
+  { label: "研究方向", href: "#specializations" },
+  { label: "学习原则", href: "#principles" },
+];
+
 const foundations = [
   {
     code: "F.01",
@@ -66,165 +111,178 @@ const principles = [
 
 <template>
   <header class="site-header">
-    <a class="brand" href="#top">
-      <span class="brand-index">MIC / 01</span>
-      <strong>Minimum AI Curriculum</strong>
+    <a class="brand" href="#top" @click.prevent="scrollTo('#top')">
+      <span class="brand-mark">AI</span>
+      <span>
+        <strong>Minimum AI Curriculum</strong>
+        <small>Brief roadmap for AI researcher guidance</small>
+      </span>
     </a>
-    <nav class="main-nav" aria-label="主导航">
-      <a href="#foundations">01 基础</a>
-      <a href="#core">02 核心</a>
-      <a href="#specializations">03 方向</a>
+    <nav class="header-nav" aria-label="顶部导航">
+      <a href="#foundations" @click.prevent="scrollTo('#foundations')">课程目录</a>
+      <a href="https://github.com/Autumn-cyber-aka/brief-roadmap-for-ai-researcher-guidance" target="_blank" rel="noopener noreferrer">
+        GitHub
+      </a>
     </nav>
   </header>
 
-  <main id="top">
-    <section class="hero page-shell">
-      <p class="kicker">A MINIMUM PATH TO AI RESEARCH</p>
-      <h1>
-        Learn less.<br />
-        <span>Understand more.</span>
-      </h1>
-      <div class="hero-bottom">
-        <p>
-          一份尽可能短的 AI 自学课程表。<br />
-          从编程基础开始，逐步获得成为 AI researcher 所需的核心能力。
+  <div class="docs-layout">
+    <aside class="sidebar" aria-label="课程目录">
+      <nav v-for="section in sidebarSections" :key="section.title" class="sidebar-group">
+        <p>{{ section.title }}</p>
+        <a
+          v-for="link in section.links"
+          :key="link.href"
+          :href="link.href"
+          @click.prevent="scrollTo(link.href)"
+        >
+          {{ link.label }}
+        </a>
+      </nav>
+    </aside>
+
+    <main id="top" class="docs-main">
+      <section class="doc-hero">
+        <p class="eyebrow">AI RESEARCHER ROADMAP</p>
+        <h1>一份尽可能短的 AI 自学路线。</h1>
+        <p class="lead">
+          从编程、离散数学、数据结构与算法开始，进入机器学习主线，再选择一个研究方向深入。
+          这不是课程收藏夹，而是一条尽量少绕路的学习路径。
         </p>
-        <a class="arrow-link" href="#foundations">开始学习 <span>↓</span></a>
-      </div>
-      <p class="hero-note">THREE STAGES · ONE RESEARCH DIRECTION · NO DETOURS</p>
-    </section>
-
-    <section id="foundations" class="curriculum-section page-shell">
-      <div class="section-intro">
-        <p class="section-number">01</p>
-        <div>
-          <p class="kicker">FOUNDATIONS / 基础能力</p>
-          <h2>建立可以继续学习的最低基础。</h2>
-          <p class="section-description">
-            不需要先修完一整套计算机科学课程。掌握以下内容，就可以进入 AI 主线。
-          </p>
+        <div class="hero-actions">
+          <a class="primary-link" href="#foundations" @click.prevent="scrollTo('#foundations')">
+            查看课程目录
+          </a>
+          <a class="secondary-link" href="#how-to-use" @click.prevent="scrollTo('#how-to-use')">
+            阅读使用方式
+          </a>
         </div>
-      </div>
+      </section>
 
-      <div class="card-grid foundations-grid">
-        <article v-for="item in foundations" :key="item.code" class="curriculum-card">
-          <p class="card-code">{{ item.code }}</p>
-          <h3>{{ item.title }}</h3>
-          <p class="card-subtitle">{{ item.titleZh }}</p>
-          <ul>
-            <li v-for="topic in item.topics" :key="topic">{{ topic }}</li>
-          </ul>
-          <div class="outcome">
-            <span>完成标准 / OUTCOME</span>
-            <p>{{ item.outcome }}</p>
-          </div>
-        </article>
-      </div>
-    </section>
-
-    <section id="core" class="curriculum-section core-section">
-      <div class="page-shell">
-        <div class="section-intro">
-          <p class="section-number">02</p>
-          <div>
-            <p class="kicker">CORE / AI 基础</p>
-            <h2>用一门课程建立机器学习主干。</h2>
-            <p class="section-description">
-              这一阶段只保留一条主线：Stanford CS229。它提供理解后续细分方向所需的共同语言。
-            </p>
-          </div>
+      <section id="how-to-use" class="doc-section">
+        <p class="section-label">Overview</p>
+        <h2>如何使用这份路线</h2>
+        <p>
+          先完成共同基础，再学习一门机器学习核心课程，最后只选择一个方向深入。
+          如果某个阶段已经掌握，可以直接跳过；如果没有把握，就用每个条目的“完成标准”自查。
+        </p>
+        <div class="notice">
+          <strong>建议节奏</strong>
+          <span>不要同时铺开所有方向。先让自己具备读论文、复现实验、判断结果是否可信的基本能力。</span>
         </div>
+      </section>
 
-        <article class="core-card">
-          <div class="core-heading">
-            <div>
-              <p class="card-code">C.01 · REQUIRED</p>
-              <h3>Stanford CS229</h3>
-              <p class="card-subtitle">Machine Learning / 机器学习</p>
+      <section id="foundations" class="doc-section">
+        <p class="section-label">01 Foundations</p>
+        <h2>基础能力</h2>
+        <p>
+          不需要先修完一整套计算机科学课程。下面三项是进入 AI 主线前最有用的最低基础。
+        </p>
+
+        <div class="course-list">
+          <article v-for="item in foundations" :key="item.code" class="course-card">
+            <div class="course-meta">
+              <span>{{ item.code }}</span>
+              <strong>{{ item.titleZh }}</strong>
             </div>
-            <a
-              class="external-link"
-              href="https://cs229.stanford.edu/"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              官方课程 <span>↗</span>
-            </a>
+            <div class="course-body">
+              <h3>{{ item.title }}</h3>
+              <ul>
+                <li v-for="topic in item.topics" :key="topic">{{ topic }}</li>
+              </ul>
+              <div class="outcome">
+                <span>完成标准</span>
+                <p>{{ item.outcome }}</p>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section id="core" class="doc-section">
+        <p class="section-label">02 Core</p>
+        <h2>AI 核心</h2>
+        <p>
+          这一阶段只保留一条主线：Stanford CS229。它提供理解后续细分方向所需的共同语言。
+        </p>
+
+        <article class="course-card highlighted-card">
+          <div class="course-meta">
+            <span>C.01</span>
+            <strong>Required</strong>
           </div>
-          <div class="core-body">
-            <ul class="topic-list">
+          <div class="course-body">
+            <h3>Stanford CS229</h3>
+            <p class="course-subtitle">Machine Learning / 机器学习</p>
+            <ul>
               <li v-for="topic in coreTopics" :key="topic">{{ topic }}</li>
             </ul>
             <div class="outcome">
-              <span>完成标准 / OUTCOME</span>
+              <span>完成标准</span>
               <p>能够理解经典机器学习方法，训练基础模型，并判断评估结果是否可信。</p>
             </div>
+            <a class="resource-link" href="https://cs229.stanford.edu/" target="_blank" rel="noopener noreferrer">
+              打开官方课程 ↗
+            </a>
           </div>
         </article>
-      </div>
-    </section>
+      </section>
 
-    <section id="specializations" class="curriculum-section page-shell">
-      <div class="section-intro">
-        <p class="section-number">03</p>
-        <div>
-          <p class="kicker">SPECIALIZATION / 选择一个研究方向</p>
-          <h2>选一条路，开始深入。</h2>
-          <p class="section-description">
-            三门课并列，任选其一。不要同时开始所有方向；先在一个具体问题域中建立研究判断力。
-          </p>
+      <section id="specializations" class="doc-section">
+        <p class="section-label">03 Specialization</p>
+        <h2>选择一个研究方向</h2>
+        <p>
+          三门课并列，任选其一。重点不是同时学完所有方向，而是在一个具体问题域中建立研究判断力。
+        </p>
+
+        <div class="resource-grid">
+          <a
+            v-for="item in specializations"
+            :key="item.code"
+            class="resource-card"
+            :href="item.href"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <span>{{ item.code }}</span>
+            <h3>{{ item.title }}</h3>
+            <p>{{ item.titleZh }}</p>
+            <strong>{{ item.course }}</strong>
+            <small>{{ item.description }}</small>
+          </a>
         </div>
-      </div>
+      </section>
 
-      <div class="card-grid specialization-grid">
-        <a
-          v-for="item in specializations"
-          :key="item.code"
-          class="specialization-card"
-          :href="item.href"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <p class="card-code">{{ item.code }} · ELECTIVE</p>
-          <h3>{{ item.title }}</h3>
-          <p class="card-subtitle">{{ item.titleZh }}</p>
-          <div class="specialization-footer">
-            <div>
-              <strong>{{ item.course }}</strong>
-              <p>{{ item.description }}</p>
-            </div>
-            <span class="external-arrow">↗</span>
-          </div>
-        </a>
-      </div>
-    </section>
-
-    <section class="principles-section">
-      <div class="page-shell principles-layout">
-        <div>
-          <p class="kicker">DESIGN PRINCIPLES / 学习原则</p>
-          <h2>The shortest useful path.</h2>
-        </div>
+      <section id="principles" class="doc-section">
+        <p class="section-label">Principles</p>
+        <h2>学习原则</h2>
         <div class="principles-list">
-          <div v-for="[number, title, text] in principles" :key="number" class="principle">
+          <article v-for="[number, title, text] in principles" :key="number" class="principle">
             <span>{{ number }}</span>
             <div>
               <h3>{{ title }}</h3>
               <p>{{ text }}</p>
             </div>
-          </div>
+          </article>
         </div>
-      </div>
-    </section>
-  </main>
+      </section>
+    </main>
+
+    <aside class="page-toc" aria-label="本页目录">
+      <p>本页目录</p>
+      <a
+        v-for="link in pageToc"
+        :key="link.href"
+        :href="link.href"
+        @click.prevent="scrollTo(link.href)"
+      >
+        {{ link.label }}
+      </a>
+    </aside>
+  </div>
 
   <footer class="site-footer">
-    <div class="page-shell footer-layout">
-      <div>
-        <strong>Minimum AI Curriculum</strong>
-        <p>A minimum path to AI research.</p>
-      </div>
-      <a href="#top">BACK TO TOP ↑</a>
-    </div>
+    <span>Minimum AI Curriculum</span>
+    <a href="#top" @click.prevent="scrollTo('#top')">Back to top ↑</a>
   </footer>
 </template>
